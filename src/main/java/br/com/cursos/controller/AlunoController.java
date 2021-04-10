@@ -22,81 +22,81 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import br.com.cursos.controller.request.CursoRequest;
-import br.com.cursos.controller.response.CursoResponse;
+import br.com.cursos.controller.request.AlunoRequest;
+import br.com.cursos.controller.response.AlunoResponse;
+import br.com.cursos.model.Aluno;
 import br.com.cursos.model.Arquivo;
-import br.com.cursos.model.Curso;
-import br.com.cursos.service.CursoService;
+import br.com.cursos.service.AlunoService;
 
 @RestController
-@RequestMapping("/curso")
+@RequestMapping("/aluno")
 @Validated
-public class CursoController {
+public class AlunoController {
 	
 	@Autowired
-	private CursoService cursoService;
+	private AlunoService alunoService;
 	@Autowired
 	private ModelMapper mapper;
 
 	@GetMapping
-	public List<CursoResponse> todos(CursoRequest filtroRequest) {
+	public List<AlunoResponse> todos(AlunoRequest filtroRequest) {
 //		return cursoService.todosCursos();
 		
-		Curso filtro = mapper.map(filtroRequest, Curso.class);
+		Aluno filtro = mapper.map(filtroRequest, Aluno.class);
 		
-		List<Curso> cursos = cursoService.filtro(filtro);
+		List<Aluno> alunos = alunoService.filtro(filtro);
 		
-		List<CursoResponse> cursoResponse = cursos.stream()
-				.map((curso)-> {
-					return new CursoResponse(curso);
+		List<AlunoResponse> alunoResponse = alunos.stream()
+				.map((aluno)-> {
+					return new AlunoResponse(aluno);
 				}).collect(Collectors.toList());
-		return cursoResponse;
+		return alunoResponse;
 	}
 	
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
-	public CursoResponse salvar(
-			@RequestPart("curso") @Valid CursoRequest cursoRequest, 
+	public AlunoResponse salvar(
+			@RequestPart("aluno") @Valid AlunoRequest alunoRequest, 
 			@RequestPart(value = "file", required = false) MultipartFile arquivoRequest) {
 		
 		Arquivo arquivo = getArquivo(arquivoRequest);
 		
-		Curso curso = mapper.map(cursoRequest, Curso.class);
-		curso.setArquivo(arquivo);
+		Aluno aluno = mapper.map(alunoRequest, Aluno.class);
+		aluno.setArquivo(arquivo);
 
-		Curso cursoSalvo = cursoService.salvar(curso);
+		Aluno alunoSalvo = alunoService.salvar(aluno);
 		
-		return new CursoResponse(cursoSalvo);
+		return new AlunoResponse(alunoSalvo);
 	}
 
 	@GetMapping("{id}")
-	public CursoResponse getCurso(@PathVariable Integer id) {
-		Curso curso =  cursoService.getCurso(id);
-		return new CursoResponse(curso);
+	public AlunoResponse getAluno(@PathVariable Integer id) {
+		Aluno aluno =  alunoService.getAluno(id);
+		return new AlunoResponse(aluno);
 	}
 	
 	@PutMapping(path = "{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public CursoResponse alterar(@PathVariable Integer id, 
-			@RequestPart("curso") @Valid CursoRequest cursoRequest, 
+	public AlunoResponse alterar(@PathVariable Integer id, 
+			@RequestPart("aluno") @Valid AlunoRequest alunoRequest, 
 			@RequestPart(value = "file", required = false) MultipartFile arquivoRequest) {
 		
 		Arquivo arquivo = getArquivo(arquivoRequest);
 		
-		Curso curso = mapper.map(cursoRequest, Curso.class);
+		Aluno aluno = mapper.map(alunoRequest, Aluno.class);
 		
 		if(arquivo != null) {
-			curso.setArquivo(arquivo);			
+			aluno.setArquivo(arquivo);			
 		}
 		
-		Curso cursoAlterado = cursoService.alterar(id, curso);
-		return new CursoResponse(cursoAlterado);
+		Aluno alunoAlterado = alunoService.alterar(id, aluno);
+		return new AlunoResponse(alunoAlterado);
 	}
 
 	
 	@DeleteMapping("{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void excluir(@PathVariable Integer id) {
-		cursoService.excluir(id);
+		alunoService.excluir(id);
 	}
 	
 	private Arquivo getArquivo(MultipartFile arquivoRequest) {
@@ -118,6 +118,5 @@ public class CursoController {
 		}
 		return arquivo;
 	}
-	
-	
+
 }
